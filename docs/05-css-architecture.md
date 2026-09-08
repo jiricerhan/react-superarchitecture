@@ -461,9 +461,6 @@ stylesheet is where the names live. A utility-only shared layer for spacing is a
 supports. If the library needs a descendant selector, put it in one file with a `/* stylelint-disable */` and a comment
 that says why; that file is the border of the architecture, not an example of it.
 
-**Where do the numbers come from?** `docs/02-containers-and-views.md` measures re-renders; this document has no
-numbers to measure. Its metric is the count of selectors with more than one class, which the lint keeps at zero.
-
 ## Glossary
 
 - **block**: the view's root class, named after the view
