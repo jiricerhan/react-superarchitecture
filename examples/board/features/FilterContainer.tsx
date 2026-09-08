@@ -1,4 +1,4 @@
-import { useFilter, useSetFilter } from '@/board/store/hooks';
+import { useFilter, useSetFilter } from '../store/hooks';
 import { Filter } from './Filter';
 
 /** The keystroke-hot subscription lives in a leaf. */

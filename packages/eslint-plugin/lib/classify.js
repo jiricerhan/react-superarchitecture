@@ -1,7 +1,7 @@
 import path from 'node:path';
 
 /**
- * Convention-based classification, the same as @twographs/analyze:
+ * Convention-based classification, the same as @superarchitecture/analyze:
  * - *Container.tsx           -> container
  * - use*.ts / hooks.ts       -> hook
  * - *Slice.ts / store.ts     -> store

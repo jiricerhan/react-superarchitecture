@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { useColumnTitle, useVisibleTaskIds } from '@/board/store/hooks';
+import { useColumnTitle, useVisibleTaskIds } from '../store/hooks';
 import { Column } from './Column';
 import { TaskContainer } from './TaskContainer';
 

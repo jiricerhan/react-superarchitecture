@@ -1,4 +1,4 @@
-import { useColumnIds } from '@/board/store/hooks';
+import { useColumnIds } from '../store/hooks';
 import { Board } from './Board';
 import { FilterContainer } from './FilterContainer';
 import { ColumnContainer } from './ColumnContainer';

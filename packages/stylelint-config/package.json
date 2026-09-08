@@ -1,0 +1,36 @@
+{
+  "name": "stylelint-config-superarchitecture",
+  "version": "0.0.1",
+  "description": "Stylelint config for the superarchitecture CSS rules: BEM class names, single-class selectors, no !important, and modifiers / states / media queries that only set custom properties.",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./modifier-sets-tokens-only": "./lib/modifier-sets-tokens-only.js"
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node test/run.js"
+  },
+  "keywords": [
+    "stylelint",
+    "stylelint-config",
+    "bem",
+    "css-custom-properties",
+    "design-tokens"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "stylelint": ">=16"
+  },
+  "dependencies": {
+    "postcss-scss": "^4.0.9"
+  },
+  "devDependencies": {
+    "stylelint": "^16.12.0"
+  }
+}

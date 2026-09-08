@@ -1,4 +1,4 @@
-# @twographs/eslint-plugin
+# eslint-plugin-superarchitecture
 
 The container / view rule as lint rules. Convention-based, no type information needed:
 `*Container.tsx` is a container, any other `.tsx` is a view, `hooks.ts` / `use*.ts` are hooks, `*Slice.ts` / `store.ts` is the store,
@@ -20,7 +20,7 @@ The container / view rule as lint rules. Convention-based, no type information n
 | `module-no-foreign-view` | a module's views are private; other modules compose its containers and read its hooks; shared views live in the shared layer or in the module's public folder (`<module>/shared/`, `moduleSharedDirs`) |
 | `shared-no-module-import` | the shared view layer depends on no module |
 
-Not here on purpose (they need the type checker or the whole graph and live in `@twographs/analyze`): wide and pass-through
+Not here on purpose (they need the type checker or the whole graph and live in `@superarchitecture/analyze`): wide and pass-through
 subscriptions, prop stability, module cycles (use `import/no-cycle`).
 
 ## Use
@@ -28,14 +28,14 @@ subscriptions, prop stability, module cycles (use `import/no-cycle`).
 ```js
 // eslint.config.js (flat)
 import tseslint from 'typescript-eslint';
-import twographs from '@twographs/eslint-plugin';
+import superarchitecture from 'eslint-plugin-superarchitecture';
 
 export default [
   ...tseslint.configs.recommended,
   {
-    ...twographs.configs.recommended,
+    ...superarchitecture.configs.recommended,
     settings: {
-      twographs: {
+      superarchitecture: {
         root: import.meta.dirname,
         modulesDir: 'src/modules',   // direct subfolders are the modules; '' = no module layer
         sharedDir: 'src/components', // the shared view layer

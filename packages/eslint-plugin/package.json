@@ -1,6 +1,7 @@
 {
-  "name": "@twographs/eslint-plugin",
-  "version": "0.0.1",
+  "name": "eslint-plugin-superarchitecture",
+  "version": "0.1.0",
+  "license": "MIT",
   "description": "ESLint rules for the container / view rule: views never import containers, views are pure, containers have no markup, modules keep their views private.",
   "type": "module",
   "main": "index.js",

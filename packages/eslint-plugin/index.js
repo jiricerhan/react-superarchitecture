@@ -1,7 +1,7 @@
 /**
- * @twographs/eslint-plugin: the container / view rule as lint rules.
+ * eslint-plugin-superarchitecture: the container / view rule as lint rules.
  *
- * settings.twographs = {
+ * settings.superarchitecture = {
  *   root: process.cwd(),            // project root the paths below are relative to
  *   modulesDir: 'src/modules',      // direct subfolders are the modules ('' = no module layer)
  *   sharedDir: 'src/components',    // the shared view layer; anyone may import it, it imports no module
@@ -29,7 +29,7 @@ const DEFAULTS = {
 };
 
 function settingsOf(context) {
-  return { ...DEFAULTS, ...(context.settings?.twographs ?? {}) };
+  return { ...DEFAULTS, ...(context.settings?.superarchitecture ?? {}) };
 }
 
 function fileInfo(context) {
@@ -285,26 +285,26 @@ const rules = {
   'shared-no-module-import': sharedNoModuleImport,
 };
 
-const plugin = { meta: { name: '@twographs/eslint-plugin', version: '0.0.1' }, rules, configs: {} };
+const plugin = { meta: { name: 'eslint-plugin-superarchitecture', version: '0.0.1' }, rules, configs: {} };
 
-/** flat config: `import twographs from '@twographs/eslint-plugin'; export default [twographs.configs.recommended]` (add your TS parser) */
+/** flat config: `import superarchitecture from 'eslint-plugin-superarchitecture'; export default [superarchitecture.configs.recommended]` (add your TS parser) */
 plugin.configs.recommended = {
-  name: 'twographs/recommended',
-  plugins: { twographs: plugin },
+  name: 'superarchitecture/recommended',
+  plugins: { superarchitecture: plugin },
   rules: {
-    'twographs/view-no-container-import': 'error',
-    'twographs/view-no-logic-import': 'error',
-    'twographs/view-no-state': 'error',
-    'twographs/view-no-effect': 'error',
-    'twographs/view-no-data-hook': 'error',
-    'twographs/view-no-inline-handler': 'warn',
-    'twographs/container-no-markup': 'error',
-    'twographs/container-no-store-import': 'error',
-    'twographs/container-one-view': 'error',
-    'twographs/store-no-state-replace': 'error',
-    'twographs/store-no-object-swap': 'error',
-    'twographs/module-no-foreign-view': 'error',
-    'twographs/shared-no-module-import': 'error',
+    'superarchitecture/view-no-container-import': 'error',
+    'superarchitecture/view-no-logic-import': 'error',
+    'superarchitecture/view-no-state': 'error',
+    'superarchitecture/view-no-effect': 'error',
+    'superarchitecture/view-no-data-hook': 'error',
+    'superarchitecture/view-no-inline-handler': 'warn',
+    'superarchitecture/container-no-markup': 'error',
+    'superarchitecture/container-no-store-import': 'error',
+    'superarchitecture/container-one-view': 'error',
+    'superarchitecture/store-no-state-replace': 'error',
+    'superarchitecture/store-no-object-swap': 'error',
+    'superarchitecture/module-no-foreign-view': 'error',
+    'superarchitecture/shared-no-module-import': 'error',
   },
 };
 

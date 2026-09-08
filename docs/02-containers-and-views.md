@@ -2,8 +2,8 @@
 
 One rule, its definitions, what follows from it, and how to design with it. Written for a codebase that follows the
 container / view split with React, TypeScript and a store (Redux Toolkit here; any store with narrow hooks works the same).
-The examples are the `board` fixture of this repo (`packages/fixture/src/board/after`), the numbers come from
-`@twographs/analyze` and the live bridge, the rules are enforced by `@twographs/eslint-plugin`.
+The examples are `examples/board` of this repo, the numbers come from
+the `twographs` analyzer (a separate repository) and its live bridge, the rules are enforced by `eslint-plugin-superarchitecture` (`packages/eslint-plugin`).
 
 ## The Rule
 
@@ -298,7 +298,7 @@ src/
 
 ## Tooling
 
-### Lint (`@twographs/eslint-plugin`)
+### Lint (`eslint-plugin-superarchitecture`)
 
 Convention-based, no type information: `*Container.tsx` is a container, other `.tsx` are views, `hooks.ts` / `use*.ts` are
 hooks, `*Slice.ts` / `store.ts` is the store, `page.tsx` under `src/app` (and `main.tsx` / `App.tsx` at the root) are
@@ -320,10 +320,10 @@ composition roots.
 Cycles: `import/no-cycle`. Wide and pass-through subscriptions, prop stability, coarse writes against real readers: the
 analyzer, which has the type checker and the whole graph.
 
-### Analyzer and viewer (`@twographs/analyze`, `@twographs/viewer`)
+### Analyzer and viewer (`twographs`, separate repository)
 
 ```
-yarn workspace @twographs/analyze run analyze --project <dir> --entry src/app/page.tsx[,more] --modules src/modules --shared src/components --out graph.json
+twographs analyze --project <dir> --entry src/app/page.tsx[,more] --modules src/modules --shared src/components --out graph.json
 ```
 
 Views of the graph: `design` (data islands → places → containers), `modules`, `views · import` (the two graphs),

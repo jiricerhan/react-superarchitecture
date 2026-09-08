@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Run the twographs rules over a project without touching its ESLint config.
+ * Run the superarchitecture rules over a project without touching its ESLint config.
  *   node bin/check.js --root C:/projects/akicolors --modules src/modules --shared src/components --alias @/=src/ [--dir src] [--json]
  */
 import path from 'node:path';
@@ -29,7 +29,7 @@ const eslint = new ESLint({
       files: ['**/*.{ts,tsx,js,jsx}'],
       ignores: ['**/node_modules/**', '**/__tests__/**', '**/*.test.*', '**/*.stories.*', '**/dist/**', '**/.next/**'],
       languageOptions: { parser: tseslint.parser, parserOptions: { ecmaFeatures: { jsx: true }, sourceType: 'module' } },
-      settings: { twographs: { root, modulesDir, sharedDir, moduleSharedDirs, aliases } },
+      settings: { superarchitecture: { root, modulesDir, sharedDir, moduleSharedDirs, aliases } },
       ...plugin.configs.recommended,
     },
   ],
@@ -47,5 +47,5 @@ for (const r of results) {
 if (has('json')) { console.log(JSON.stringify({ root, files: results.length, byRule: Object.fromEntries(byRule), byFile }, null, 2)); process.exit(0); }
 console.log(`${results.length} files linted in ${root}`);
 for (const [rule, n] of [...byRule].sort((a, b) => b[1] - a[1])) console.log(`  ${String(n).padStart(3)}  ${rule}`);
-if (has('verbose')) for (const f of byFile) { console.log(`\n${f.file}`); for (const m of f.messages) console.log(`  ${m.line}: [${m.rule?.replace('twographs/', '')}] ${m.message}`); }
+if (has('verbose')) for (const f of byFile) { console.log(`\n${f.file}`); for (const m of f.messages) console.log(`  ${m.line}: [${m.rule?.replace('superarchitecture/', '')}] ${m.message}`); }
 process.exit(byRule.size ? 1 : 0);

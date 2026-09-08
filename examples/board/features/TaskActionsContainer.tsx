@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { useTaskDone, useToggleDone } from '@/board/store/hooks';
+import { useTaskDone, useToggleDone } from '../store/hooks';
 import { Actions } from './Actions';
 
 interface Props {
