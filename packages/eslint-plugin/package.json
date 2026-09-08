@@ -1,0 +1,21 @@
+{
+  "name": "@twographs/eslint-plugin",
+  "version": "0.0.1",
+  "description": "ESLint rules for the container / view rule: views never import containers, views are pure, containers have no markup, modules keep their views private.",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "scripts": {
+    "check": "node bin/check.js"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  },
+  "devDependencies": {
+    "eslint": "^9.17.0",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.20.0"
+  }
+}
