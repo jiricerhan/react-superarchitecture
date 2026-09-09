@@ -8,7 +8,7 @@
  *   moduleSharedDirs: ['shared', 'public'], // a module's public views: `<module>/shared/**` may be imported by other modules
  *   aliases: { '@/': 'src/' },      // import prefixes -> project-relative dirs
  *   storeLibraries: ['react-redux', '@reduxjs/toolkit', 'zustand', 'jotai', 'valtio', 'mobx-react'],
- *   viewHooks: ['useRef', 'useId', 'useContext', 'useMemo', 'useCallback', 'useTransition', 'useDeferredValue', 'useImperativeHandle', 'useDebugValue'],
+ *   viewHooks: ['useRef', 'useId', 'useMemo', 'useCallback', 'useTransition', 'useDeferredValue', 'useImperativeHandle', 'useDebugValue'],
  * }
  *
  * What stays in the analyzer (needs the type checker or the whole graph): wide / pass-through subscriptions,
@@ -25,7 +25,7 @@ const DEFAULTS = {
   moduleSharedDirs: ['shared', 'public'],
   aliases: { '@/': 'src/' },
   storeLibraries: ['react-redux', '@reduxjs/toolkit', 'zustand', 'jotai', 'valtio', 'mobx-react', 'mobx-react-lite'],
-  viewHooks: ['useRef', 'useId', 'useContext', 'useMemo', 'useCallback', 'useTransition', 'useDeferredValue', 'useImperativeHandle', 'useDebugValue', 'useSyncExternalStore'],
+  viewHooks: ['useRef', 'useId', 'useMemo', 'useCallback', 'useTransition', 'useDeferredValue', 'useImperativeHandle', 'useDebugValue', 'useSyncExternalStore'],
 };
 
 function settingsOf(context) {
@@ -93,7 +93,7 @@ const viewNoContainerImport = {
 };
 
 const viewNoLogicImport = {
-  meta: { type: 'problem', docs: { description: 'a view imports only views, the shared layer and pure utils: no hooks, store, queries' }, schema: [], messages: { found: 'view {{view}} imports {{kind}} {{target}}. A view knows nothing about data; move this into a container.' } },
+  meta: { type: 'problem', docs: { description: 'a view imports only views, the shared layer and presentation utils: no hooks, store, queries' }, schema: [], messages: { found: 'view {{view}} imports {{kind}} {{target}}. A view knows nothing about data; move this into a container.' } },
   create(context) {
     return forEachImport(context, (node, t, info) => {
       if (info.kind !== 'view') return;

@@ -24,7 +24,8 @@ name (a `.tsx` with hooks and markup) is the first finding: it is neither.
 
 **1. Views.** For every view:
 - imports: no container, no `hooks.ts`, no slice, no `react-redux` / query client, no module-private view of another module
-- no `useState`, `useReducer`, `useEffect`, `useLayoutEffect`, no data hook; `useRef`/`useMemo`/`useCallback`/`useId`/`useContext` are fine
+- no `useState`, `useReducer`, `useEffect`, `useLayoutEffect`, no data hook, no `useContext`; `useRef`/`useMemo`/`useCallback`/`useId` are fine
+- no formatting of data in the view (dates, numbers, money): the container passes the finished string; `cx` for class names is fine
 - props are values (`title: string`), not entities (`task: Task`), not ids that are only handed on
 - handlers are received, not created with domain logic; no fresh function passed to a component (a DOM event adapter on a host element is fine)
 - wherever a container belongs there is a `ReactNode` slot

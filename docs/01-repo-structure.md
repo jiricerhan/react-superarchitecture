@@ -148,7 +148,7 @@ Inside a module the same shape repeats one level down:
               └──▶ src/store/hooks.ts (useAppSelector)  base hooks ← module hooks only
 ```
 
-- a **view** imports views, the shared layer and pure utils
+- a **view** imports views, the shared layer and presentation utils (`cx`); anything that turns data into text (formatting, pluralisation) runs in the container
 - a **container** imports its view, the containers it creates, and hooks
 - **hooks** import the slice, selectors, base store hooks, other modules' hooks
 - a **slice** imports types and utils, nothing with React in it
@@ -239,7 +239,7 @@ files to `src/components`.
 |---|---|---|
 | `index.ts` re-exporting views across modules | the view becomes public; other modules' views import it and the import graph crosses the module boundary | export containers and hooks; put a view used by several modules in `src/components` |
 | barrel `src/components/index.ts` | one import pulls in every shared view; refactors touch the barrel | import the file: `@/components/Button/Button` |
-| `utils.ts` as a dumping ground | domain logic, formatting and store helpers end up in one file every layer imports | `src/utils` holds pure, domain-free functions; domain helpers live in `<module>/utils.ts`; anything that reads state is a hook |
+| `utils.ts` as a dumping ground | domain logic, formatting and store helpers end up in one file every layer imports | `src/utils` holds pure, domain-free functions; domain helpers live in `<module>/utils.ts`; anything that reads state is a hook; views use only presentation utils such as `cx`, formatting runs in containers |
 | a container under `src/components` | the shared layer now depends on a module's data | containers live in modules; `src/components` is views only |
 | a view importing from `src/store` or a slice | the view needs a provider; it cannot render in Storybook or a test | the container reads a hook and passes a value |
 | a view importing `hooks.ts` | same as above, one step removed | hooks are called in containers |

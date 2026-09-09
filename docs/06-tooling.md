@@ -19,7 +19,7 @@ Thirteen rules. Every rule maps to one sentence of the guideline.
 | rule | guideline |
 |---|---|
 | `view-no-container-import` | a view never imports a container, by file (`XContainer.tsx`) or by name through a barrel (`import { XContainer } from '@/modules/x'`, re-exports included); type-only imports are fine. It offers a `ReactNode` slot instead |
-| `view-no-logic-import` | a view imports only views, the shared layer and pure utils |
+| `view-no-logic-import` | a view imports only views, the shared layer and presentation utils (`cx`) |
 | `view-no-state` | a view holds no `useState` / `useReducer`; state lives in the container above |
 | `view-no-effect` | a view runs no `useEffect` / `useLayoutEffect` |
 | `view-no-data-hook` | a view calls no data hooks; only harmless React built-ins (`useRef`, `useMemo`, `useCallback`, `useId`) |
@@ -77,7 +77,7 @@ export default [
 | `moduleSharedDirs` | `['shared', 'public']` | a module's public views: `<module>/shared/**` may be imported by other modules |
 | `aliases` | `{ '@/': 'src/' }` | import prefixes mapped to project-relative folders |
 | `storeLibraries` | react-redux, @reduxjs/toolkit, zustand, jotai, valtio, mobx-react | packages a container must not import directly (`container-no-store-import`) |
-| `viewHooks` | `useRef`, `useId`, `useContext`, `useMemo`, `useCallback`, `useTransition`, `useDeferredValue`, `useImperativeHandle`, `useDebugValue`, `useSyncExternalStore` | hooks a view may call (`view-no-data-hook`); add `useTranslation`, `useTheme` or similar if your views read a context with a safe default |
+| `viewHooks` | `useRef`, `useId`, `useMemo`, `useCallback`, `useTransition`, `useDeferredValue`, `useImperativeHandle`, `useDebugValue`, `useSyncExternalStore` | hooks a view may call (`view-no-data-hook`). `useContext` is not in the list on purpose: a context needs a Provider, which is the same trap as a store. Add it (or `useTranslation`, `useTheme`) only if your team accepts that a story then needs a decorator |
 
 Stories and tests (`*.stories.*`, `*.test.*`, `*.spec.*`, `__tests__/`) are ignored by the recommended config: they are neither views nor containers.
 

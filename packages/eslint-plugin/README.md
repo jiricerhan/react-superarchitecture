@@ -7,7 +7,7 @@ The container / view rule as lint rules. Convention-based, no type information n
 | rule | what it says |
 |---|---|
 | `view-no-container-import` | a view never imports a container: by file (`XContainer.tsx`) or by name (`import { XContainer } from '@/modules/x'`, re-exports included), so a barrel hides nothing; type-only imports are skipped. The view offers a `ReactNode` prop and a container fills it |
-| `view-no-logic-import` | a view imports only views, the shared layer and pure utils: no hooks, store, queries, store libraries |
+| `view-no-logic-import` | a view imports only views, the shared layer and presentation utils (`cx`): no hooks, store, queries, store libraries |
 | `view-no-state` | a view owns no state (`useState`, `useReducer`); state and its handler live in a container, hover is CSS |
 | `view-no-effect` | a view runs no effects |
 | `view-no-data-hook` | a view calls no hooks beyond harmless React built-ins (`useRef`, `useMemo`, `useCallback`, `useId`, ...) |

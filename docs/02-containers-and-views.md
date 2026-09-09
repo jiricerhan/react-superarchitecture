@@ -53,8 +53,8 @@ The rule needs two kinds of components. These are definitions, not consequences.
 - props in, markup out; everything a view does is about pixels, nothing about data
 - **no state** (`useState`, `useReducer`): state and its handler live in a container; hover is CSS
 - **no effects**: effects belong to a container
-- no data hooks, no store, no queries; harmless React built-ins are fine (`useRef`, `useMemo`, `useCallback`, `useId`, `useContext`)
-- imports only views, the shared layer and pure utils
+- no data hooks, no store, no queries, no `useContext` (a context needs a Provider: the same trap as a store); harmless React built-ins are fine (`useRef`, `useMemo`, `useCallback`, `useId`)
+- imports only views, the shared layer and presentation utils (`cx` for class names); formatting of dates, numbers and money is the container's job, the view receives the finished string
 - receives **values** (`title: string`), never entities (`task: Task`)
 - passes the handlers it got; creates none with domain logic (adapting a DOM event on a host element is view work)
 - no `View` suffix: the view is named after what it shows (`Task`), the container carries the suffix (`TaskContainer`)
