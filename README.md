@@ -146,4 +146,4 @@ The `refactoring-to-containers` skill walks through the same steps with code.
 
 ## License
 
-MIT
+0BSD. Use it, copy it, change it, ship it; no attribution required.

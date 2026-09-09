@@ -23,7 +23,7 @@
     "css-custom-properties",
     "design-tokens"
   ],
-  "license": "MIT",
+  "license": "0BSD",
   "peerDependencies": {
     "stylelint": ">=16"
   },
