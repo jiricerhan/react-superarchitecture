@@ -52,7 +52,7 @@ The rule needs two kinds of components. These are definitions, not consequences.
 
 - props in, markup out; everything a view does is about pixels, nothing about data
 - **no state** (`useState`, `useReducer`): state and its handler live in a container; hover is CSS
-- **no effects**: effects belong to a container
+- **no effects**: effects belong to a container. A DOM effect (measuring, focus, scroll) is no exception: the container creates the ref, hands it to the view as a prop, and does the work in a hook of its own
 - no data hooks, no store, no queries, no `useContext` (a context needs a Provider: the same trap as a store); harmless React built-ins are fine (`useRef`, `useMemo`, `useCallback`, `useId`)
 - imports only views, the shared layer and presentation utils (`cx` for class names); formatting of dates, numbers and money is the container's job, the view receives the finished string
 - receives **values** (`title: string`), never entities (`task: Task`)
@@ -60,6 +60,23 @@ The rule needs two kinds of components. These are definitions, not consequences.
 - no `View` suffix: the view is named after what it shows (`Task`), the container carries the suffix (`TaskContainer`)
 
 Library components that hold state (a headless Dialog, a Combobox) are views imported as views. Our own views hold none.
+
+```tsx
+// ✅ the DOM node the effect needs travels down as a prop, the effect stays in the container
+const SearchContainer = memo(function SearchContainer() {
+  const inputRef = useRef<HTMLInputElement>(null);
+  useAutoFocus(inputRef);                       // the effect lives in a hook, next to the data
+  const value = useSearchValue();
+  return <Search inputRef={inputRef} value={value} onChange={useSetSearchValue()} />;
+});
+
+// Search.tsx — the view only puts the ref on the element it owns
+function Search({ inputRef, value, onChange }: { inputRef: Ref<HTMLInputElement>; value: string; onChange: (v: string) => void }) {
+  return <input ref={inputRef} className="search" value={value} onChange={(e) => onChange(e.target.value)} />;
+}
+```
+
+The view stays a pure function of its props: a story renders it with `inputRef` omitted and nothing happens.
 
 ### Containers
 

@@ -32,6 +32,8 @@ a view. The import graph stays flat; React composes the render tree from slots.
 - [ ] No `useState`, no `useReducer`: state and its handler live in a container; hover is CSS.
 - [ ] No `useEffect`, no data hooks, no store, no queries, no `useContext` (a context needs a Provider, same trap as a
       store). Harmless React built-ins are fine (`useRef`, `useMemo`, `useCallback`, `useId`).
+- [ ] Needs a DOM node (focus, measuring, scrolling, an animation library)? The container creates the ref with
+      `useRef`, does the work in a hook, and passes the ref down as a prop; the view only puts it on its element.
 - [ ] Imports only views, the shared layer and presentation utils (`cx`). Never a container, never `hooks.ts`, never a
       slice. Formatting (dates, numbers, money, plurals) runs in the container; the view receives the finished string.
 - [ ] Receives **values** (`title: string`, `selected: boolean`), never entities (`task: Task`), never ids to pass on.

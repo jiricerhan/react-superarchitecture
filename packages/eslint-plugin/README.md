@@ -11,6 +11,8 @@ The container / view rule as lint rules. Convention-based, no type information n
 | `view-no-state` | a view owns no state (`useState`, `useReducer`); state and its handler live in a container, hover is CSS |
 | `view-no-effect` | a view runs no effects |
 | `view-no-data-hook` | a view calls no hooks beyond harmless React built-ins (`useRef`, `useMemo`, `useCallback`, `useId`, ...) |
+
+A view that needs a DOM node takes the ref as a prop: the container creates it and runs the effect in a hook.
 | `view-no-inline-handler` (warn) | a view hands no fresh function to a component; adapting a DOM event on a host element is fine |
 | `container-no-markup` | a container renders no host elements; markup and style belong to its view |
 | `container-no-store-import` | a container reaches data through the module hooks, never the store, a slice or a store library |

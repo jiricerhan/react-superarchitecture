@@ -21,7 +21,7 @@ Thirteen rules. Every rule maps to one sentence of the guideline.
 | `view-no-container-import` | a view never imports a container, by file (`XContainer.tsx`) or by name through a barrel (`import { XContainer } from '@/modules/x'`, re-exports included); type-only imports are fine. It offers a `ReactNode` slot instead |
 | `view-no-logic-import` | a view imports only views, the shared layer and presentation utils (`cx`) |
 | `view-no-state` | a view holds no `useState` / `useReducer`; state lives in the container above |
-| `view-no-effect` | a view runs no `useEffect` / `useLayoutEffect` |
+| `view-no-effect` | a view runs no `useEffect` / `useLayoutEffect`; a DOM effect gets its ref from the container and runs in the container's hook |
 | `view-no-data-hook` | a view calls no data hooks; only harmless React built-ins (`useRef`, `useMemo`, `useCallback`, `useId`) |
 | `view-no-inline-handler` (warn) | a view passes handlers it received, it does not create them |
 | `container-no-markup` | a container renders no JSX elements, only its one view and child containers |
