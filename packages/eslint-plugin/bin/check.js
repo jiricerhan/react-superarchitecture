@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Run the superarchitecture rules over a project without touching its ESLint config.
- *   node bin/check.js --root C:/projects/akicolors --modules src/modules --shared src/components --alias @/=src/ [--dir src] [--json]
+ *   node bin/check.js --root ../my-app --modules src/modules --shared src/components --alias @/=src/ [--dir src] [--json]
  */
 import path from 'node:path';
 import { ESLint } from 'eslint';
@@ -35,7 +35,7 @@ const eslint = new ESLint({
   ],
 });
 
-const results = await eslint.lintFiles([path.join(root, dir, '**/*.{ts,tsx}')]);
+const results = await eslint.lintFiles([path.join(root, dir, '**/*.{ts,tsx,js,jsx}')]);
 const byRule = new Map();
 const byFile = [];
 for (const r of results) {

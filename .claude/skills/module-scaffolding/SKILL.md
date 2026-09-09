@@ -107,7 +107,7 @@ import type { TaskId } from '../types';
 type Props = { id: TaskId };
 
 // memo: this container is created by another container. Hooks only, one view, no markup.
-export const TaskContainer = memo(({ id }: Props) => {
+export const TaskContainer = memo(function TaskContainer({ id }: Props) {
   const title = useTaskTitle(id);
   const done = useTaskDone(id);
   const toggleDone = useToggleDone();
@@ -121,6 +121,7 @@ export const TaskContainer = memo(({ id }: Props) => {
 
 ```tsx
 import type { ReactNode } from 'react';
+import cx from 'classnames';
 import styles from './Task.module.scss';
 
 type Props = {
@@ -131,10 +132,10 @@ type Props = {
 };
 
 export const Task = ({ title, done, onToggle, assignee }: Props) => (
-  <div className={done ? `${styles.task} ${styles['task--done']}` : styles.task}>
-    <h3 className={styles.task__title}>{title}</h3>
-    <div className={styles.task__assignee}>{assignee}</div>
-    <button className={styles.task__toggle} onClick={onToggle}>Done</button>
+  <div className={cx(styles.task, done && styles['task--done'])}>
+    <h3 className={styles['task__title']}>{title}</h3>
+    <div className={styles['task__assignee']}>{assignee}</div>
+    <button className={styles['task__toggle']} onClick={onToggle}>Done</button>
   </div>
 );
 ```
@@ -145,8 +146,8 @@ No `useState`, no effects, no hooks beyond `useRef`/`useMemo`/`useCallback`/`use
 
 ```scss
 // block named after the view, BEM, no nesting, modifiers over nested selectors
-.task { display: grid; gap: var(--space-2); padding: var(--space-3); }
-.task--done { opacity: 0.6; }
+.task { opacity: var(--task-opacity, 1); display: grid; gap: var(--space-2); padding: var(--space-3); }
+.task--done { --task-opacity: 0.6; }
 .task__title { margin: 0; font: var(--font-heading-s); }
 .task__assignee { display: flex; }
 .task__toggle { justify-self: end; }

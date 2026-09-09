@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
-import { useTaskDone, useToggleDone } from '../store/hooks';
-import { Actions } from './Actions';
+import { useTaskDone, useToggleDone } from './hooks';
+import { TaskActions } from './TaskActions';
 
 interface Props {
   taskId: string;
@@ -10,7 +10,7 @@ function TaskActionsContainerImpl({ taskId }: Props) {
   const done = useTaskDone(taskId);
   const toggleDone = useToggleDone();
   const onToggle = useCallback(() => toggleDone(taskId), [toggleDone, taskId]);
-  return <Actions done={done} onToggle={onToggle} />;
+  return <TaskActions done={done} onToggle={onToggle} />;
 }
 // React uses the inner function as the fiber type for simple memo components, so name it there too
 TaskActionsContainerImpl.displayName = 'TaskActionsContainer';

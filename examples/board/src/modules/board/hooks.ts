@@ -1,13 +1,10 @@
 import { useCallback, useMemo } from 'react';
 import { createSelector } from '@reduxjs/toolkit';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from './store';
-import { selectTask, setFilter, toggleDone, type Task, type User } from './boardSlice';
+import type { RootState } from '@/store/store';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { selectTask, setFilter, toggleDone, type User } from './boardSlice';
 
-export const useAppSelector = useSelector.withTypes<RootState>();
-export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
-
-// ---- narrow, id-addressable subscriptions (the `after` variant) ----
+// The data API of the module: narrow, id-addressed subscriptions. Containers call these and nothing else.
 
 export const useColumnIds = () => useAppSelector((s) => s.board.columns.ids);
 export const useColumnTitle = (id: string) => useAppSelector((s) => s.board.columns.byId[id]?.title ?? '');
@@ -30,7 +27,6 @@ export const useVisibleTaskIds = (columnId: string) => {
   return useAppSelector((s) => select(s, columnId));
 };
 
-export const useTask = (id: string): Task | undefined => useAppSelector((s) => s.board.tasks.byId[id]);
 export const useTaskTitle = (id: string) => useAppSelector((s) => s.board.tasks.byId[id]?.title ?? '');
 export const useTaskDone = (id: string) => useAppSelector((s) => s.board.tasks.byId[id]?.done ?? false);
 export const useTaskAssigneeId = (id: string) => useAppSelector((s) => s.board.tasks.byId[id]?.assigneeId ?? '');
@@ -58,7 +54,3 @@ export const useToggleDone = () => {
   const dispatch = useAppDispatch();
   return useCallback((id: string) => dispatch(toggleDone(id)), [dispatch]);
 };
-
-// ---- wide subscription (the `before` variant) ----
-
-export const useBoard = () => useAppSelector((s) => s.board);

@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { useIsTaskSelected, useSelectTask, useTaskTitle } from '../store/hooks';
+import { useIsTaskSelected, useSelectTask, useTaskTitle } from './hooks';
 import { Task } from './Task';
 import { AssigneeContainer } from './AssigneeContainer';
 import { TaskActionsContainer } from './TaskActionsContainer';

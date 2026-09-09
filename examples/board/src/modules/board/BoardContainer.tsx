@@ -1,4 +1,4 @@
-import { useColumnIds } from '../store/hooks';
+import { useColumnIds } from './hooks';
 import { Board } from './Board';
 import { FilterContainer } from './FilterContainer';
 import { ColumnContainer } from './ColumnContainer';
@@ -16,5 +16,5 @@ export function BoardContainer() {
       <SelectedTaskContainer />
     </>
   );
-  return <Board variant="after" toolbar={toolbar} columns={columns} sidebar={sidebar} />;
+  return <Board toolbar={toolbar} columns={columns} sidebar={sidebar} />;
 }

@@ -1,4 +1,4 @@
-import { useSelectedTaskId, useTaskTitle } from '../store/hooks';
+import { useSelectedTaskId, useTaskTitle } from './hooks';
 import { SelectedTask } from './SelectedTask';
 import { AssigneeContainer } from './AssigneeContainer';
 

@@ -1,4 +1,4 @@
-import { useStats } from '../store/hooks';
+import { useStats } from './hooks';
 import { Stats } from './Stats';
 
 export function StatsContainer() {

@@ -6,8 +6,9 @@ Where files go and what they are called. The layout exists to serve one rule, **
 lint plugin (`eslint-plugin-superarchitecture`) can detect without type information: it classifies files **by name and
 location**, so the names are not taste, they are the contract with the tooling.
 
-The layouts are taken from three real codebases that follow the rule: `akicolors` (feature folders), `akinom`
-(flat modules with an `index.ts` entry) and the `board` example of this repo.
+The layouts are taken from three real codebases that follow the rule: `akicolors` (feature folders) and `akinom`
+(flat modules with an `index.ts` entry), both private side projects, and the `board` example of this repo
+(`examples/board/src`).
 
 ## Top-Level Layout
 
@@ -69,6 +70,9 @@ src/modules/board/
 - **`types.ts`** holds the entities. Views define their own prop types and never import entities.
 - **feature folders** hold one container, its view, its styles, and the small containers that fill its slots. A
   feature folder has no `index.ts`.
+- **no barrel files inside a module.** The module's own `index.ts` is the only one, and it exports containers and
+  hooks, never views. A barrel does not hide a container from the lint either: `view-no-container-import` also
+  matches the imported name (`*Container`), so `import { TaskContainer } from '@/modules/board'` in a view is reported.
 
 ## File Naming
 
@@ -81,7 +85,7 @@ src/modules/board/
 | test | `Task.test.tsx`, `hooks.test.ts` | — | view / other |
 | hooks | `hooks.ts`, `useTask.ts`, `hooks/*.ts` | `export const useTaskTitle` | hook |
 | slice | `boardSlice.ts`, `store/*.ts` | `export const boardSlice` | store |
-| store assembly | `src/store/store.ts` | `store`, `RootState`, `AppDispatch` | store |
+| store assembly | `src/store/store.ts`, `src/store/hooks.ts` | `store`, `RootState`, `AppDispatch`; `useAppSelector`, `useAppDispatch` | store |
 | types | `types.ts` | domain types | util |
 | utils | `utils.ts`, `utils/*.ts`, `consts.ts` | pure functions, constants | util |
 | page | `src/app/**/page.tsx`, `layout.tsx`; `src/main.tsx`, `src/App.tsx` | default export | page (composition root) |
@@ -96,7 +100,7 @@ Rules behind the table:
 - **Slices are camelCase with the `Slice` suffix**, named after the module: `boardSlice.ts`, `gradientsSlice.ts`.
 - **Styles, stories and tests share the view's name.** They sit next to the view, never in `tests/` or `__tests__/`.
 - **A page is only a page by location**: `page.tsx` / `layout.tsx` under `src/app` (or `pages/`), or `main.tsx` /
-  `App.tsx` / `index.tsx` directly under `src/`. The same names deeper in the tree are ordinary views.
+  `App.tsx` / `index.tsx` directly under `src/` or under `src/app`. The same names deeper in the tree are ordinary views.
 - **Module folders are camelCase** (`board`, `colorPicker`); feature folders and component files are PascalCase.
 
 ```tsx
@@ -149,7 +153,6 @@ Inside a module the same shape repeats one level down:
 - **hooks** import the slice, selectors, base store hooks, other modules' hooks
 - a **slice** imports types and utils, nothing with React in it
 - nothing imports a container except another container or a page; nothing imports a slice except `hooks.ts` and `store.ts`
-
 
 ## Path Aliases
 

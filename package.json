@@ -4,7 +4,7 @@
   "license": "MIT",
   "workspaces": ["packages/*"],
   "scripts": {
-    "check:example": "node packages/eslint-plugin/bin/check.js --root examples --dir board --modules .",
+    "check:example": "node packages/eslint-plugin/bin/check.js --root examples/board --modules src/modules --shared src/components",
     "test:stylelint": "node packages/stylelint-config/test/run.js"
   }
 }

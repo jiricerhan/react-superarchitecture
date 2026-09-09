@@ -3,7 +3,7 @@ interface Props {
   onToggle: () => void;
 }
 
-export function Actions({ done, onToggle }: Props) {
+export function TaskActions({ done, onToggle }: Props) {
   return (
     <button type="button" className={done ? 'actions is-done' : 'actions'} onClick={onToggle} title="toggle done">
       {done ? '✓' : '○'}

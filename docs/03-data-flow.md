@@ -3,8 +3,8 @@
 Companion to `02-containers-and-views.md`. That document states the rule ("a view never imports a container; containers
 compose through `ReactNode`") and what follows from it. This one follows the data: how it enters a container, how it
 leaves, which parts of the screen re-render when it changes, and how to derive the containers of a screen from the data
-instead of from the layout. The examples are the `board` example (`examples/board`); the numbers come from the analyzer
-(`@superarchitecture/analyze`) and the live bridge; the rules are enforced by `eslint-plugin-superarchitecture`.
+instead of from the layout. The examples are the `board` example (`examples/board`); the numbers come from an import/render graph
+analyzer that is not published yet; the rules are enforced by `eslint-plugin-superarchitecture`.
 
 ## 1. The Three Flows of a Container
 
@@ -20,7 +20,7 @@ A container has exactly three edges. Everything it does is one of these, and not
    `selected: boolean`), **handlers** it created (`onSelect`), and **elements of child containers** for the slots.
 
 ```tsx
-// examples/board/features/TaskContainer.tsx
+// examples/board/src/modules/board/TaskContainer.tsx
 function TaskContainerImpl({ id }: Props) {                       // 1. props in: an id
   const title = useTaskTitle(id);                                 // 2. reads: narrow, id-addressed
   const selected = useIsTaskSelected(id);
@@ -183,9 +183,12 @@ replacement (`return { ...state, filter }`) is the same one level up: every fiel
 so the whole slice is one island.
 
 Immer lets you write the fine-grained form without ceremony. API responses are written field by field, or diffed
-against the current state before assignment, so that a refetch that changed nothing changes nothing. The analyzer
-reports `coarse-write` (an action replaces an object that containers subscribe below); the lint reports
-`store-no-object-swap` and `store-no-state-replace`.
+against the current state before assignment, so that a refetch that changed nothing changes nothing. The lint catches
+the syntactic forms: `store-no-object-swap` reports a spread swap (`byId[id] = { ...t, done }`) and `Object.assign`
+onto state; `store-no-state-replace` reports a reducer that returns a new slice (`return { ...state }` or an
+expression body `(state) => ({ ...state })`). A bulk assignment of a whole map (`state.tasks.byId = action.payload`)
+looks like any other assignment to the lint and is a review item. The analyzer reports all of them as `coarse-write`
+when containers subscribe below the replaced object.
 
 ## 5. Designing Containers From Data: Views → Data → Places → Containers
 
@@ -285,16 +288,16 @@ for data, `Card` is the unit of reuse for markup.
 
 **Now the big view is cut**, and it is cut exactly at the containers. At every such point the view ends and a **slot**
 begins: `Board` gets `toolbar`, `columns`, `sidebar`; `Column` gets `children`; `Task` gets `assignee`, `actions`. What is
-left of the big view are the views of the containers: `Board`, `Filter`, `Column`, `Task`, `Assignee`, `Actions`, `Stats`,
+left of the big view are the views of the containers: `Board`, `Filter`, `Column`, `Task`, `Assignee`, `TaskActions`, `Stats`,
 `SelectedTask`. There is no other reason to cut a view than a container or reuse. List and item are two islands, hence two
 containers; the layout is what remains, with only slots; "readability" is taste and not a reason.
 
 ```tsx
-// examples/board/features/Board.tsx: the skeleton that remained after the cut. Only slots.
-export function Board({ variant, toolbar, columns, sidebar }: Props) {
+// examples/board/src/modules/board/Board.tsx: the skeleton that remained after the cut. Only slots.
+export function Board({ toolbar, columns, sidebar }: Props) {
   return (
     <div className="board">
-      <div className="board__toolbar">{toolbar}<span className="board__variant">{variant}</span></div>
+      <div className="board__toolbar">{toolbar}</div>
       <div className="board__columns">{columns}</div>
       <div className="board__sidebar">{sidebar}</div>
     </div>
@@ -368,8 +371,17 @@ The procedure exposes these; the tooling names them.
 | **pass-through id** | a view has `taskId` only to hand it to a child | the cut is one level too high; the view knows ids and the render graph leaks into the import graph | analyzer *pass-through* report; 7 such ids in the nested variant, 0 under the rule | move the child container up into a slot filled by the parent container |
 | **list and item in one container** | `ColumnContainer` reads `taskIds` and every task's fields | membership and item content are two islands; every keystroke in the filter re-renders all cards | `islands` on `setFilter` | `ColumnContainer` reads ids; `TaskContainer(id)` reads its own fields |
 | **derived value without a memoized selector** | `useAppSelector((s) => ({ done: …, total: … }))` | a fresh object on every store change; `Stats` re-renders when nothing it shows changed | trace on any action lighting up the stats | `createSelector`; per-instance factory when parameterized |
-| **coarse write** | `byId[id] = { ...t, done }`, `return { ...state, filter }` | islands in the data merge; every reader of the object re-renders | `coarse-write` in the analyzer | assign the field: `t.done = !t.done` |
+| **coarse write** | `byId[id] = { ...t, done }`, `return { ...state, filter }` | islands in the data merge; every reader of the object re-renders | `store-no-object-swap`, `store-no-state-replace`; `coarse-write` in the analyzer | assign the field: `t.done = !t.done` |
 | **pass-through container** | a container subscribes only to pass values down | an island that shows nothing and re-renders anyway | `state · containers · views` | move composition up; give the value its own container at its place |
+
+## Checklist
+
+- [ ] every hook returns exactly what its caller displays; no `useBoard()`-style wide hooks
+- [ ] hooks are addressed by id; a view never holds an id only to pass it on
+- [ ] a list container reads ids, an item container reads its own fields
+- [ ] derived values come from memoized selectors
+- [ ] reducers assign the field that changed, never the object around it
+- [ ] one container per data island at one place; no container that only passes values down
 
 ## Glossary
 

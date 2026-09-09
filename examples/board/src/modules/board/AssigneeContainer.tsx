@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { useTaskAssigneeId, useUser } from '../store/hooks';
+import { useTaskAssigneeId, useUser } from './hooks';
 import { Assignee } from './Assignee';
 
 interface Props {

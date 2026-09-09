@@ -3,7 +3,7 @@
 One rule, its definitions, what follows from it, and how to design with it. Written for a codebase that follows the
 container / view split with React, TypeScript and a store (Redux Toolkit here; any store with narrow hooks works the same).
 The examples are `examples/board` of this repo, the numbers come from
-the `twographs` analyzer (a separate repository) and its live bridge, the rules are enforced by `eslint-plugin-superarchitecture` (`packages/eslint-plugin`).
+an import/render graph analyzer that is not published yet, the rules are enforced by `eslint-plugin-superarchitecture` (`packages/eslint-plugin`).
 
 ## The Rule
 
@@ -35,7 +35,7 @@ const Task = ({ title, selected, onSelect, assignee, actions }: Props) => (
   </div>
 );
 
-const TaskContainer = memo(({ id }: { id: string }) => {
+const TaskContainer = memo(function TaskContainer({ id }: { id: string }) {
   const title = useTaskTitle(id);
   const selected = useIsTaskSelected(id);
   const selectTask = useSelectTask();
@@ -65,7 +65,7 @@ Library components that hold state (a headless Dialog, a Combobox) are views imp
 
 - data and behaviour: subscriptions, handlers, effects
 - **no markup, no style**: no host elements, at most a fragment
-- renders **exactly one view** (its own, or a shared one) and puts containers into its slots
+- renders **only views and containers**, typically one view (its own, or a shared one), and puts containers into its slots
 - reaches data only through the module's hooks, never the store, a slice or a store library directly
 - creates child containers and hands them down as elements; passes ids to them, never objects
 - memoized (`memo`) when it is created by another container: see [Memo](#memo)
@@ -100,7 +100,7 @@ None of these needs to be a separate rule. Each one falls out of "a view never i
 - **Render tree**: runtime, what React composed from concrete data.
 
 Under the rule the import graph and the render graph differ; a container tunnels through views it never imported. That
-is the picture the `twographs` viewer draws (`views · import`, `two trees → one`, `build the render tree`).
+is the picture the analyzer's viewer draws (`views · import`, `two trees → one`, `build the render tree`).
 
 ## Render Islands
 
@@ -113,7 +113,7 @@ together:
 - islands re-render whole; nothing outside an island re-renders
 - containers are cut where the data changes at a different pace: title and selection change together, the assignee at another time, done at another
 - `memo` is not discipline, it is the definition of an island boundary; it belongs on containers and nowhere else
-- the metric that matters: **how many islands one change touches**. The board: a title change touches 1 giant island before the rule, 2 small ones after
+- the metric that matters: **how many islands one change touches**. The board: a title change touches 1 giant island with a wide `useBoard()` hook, 2 small ones with narrow hooks
 
 Not to be confused with Astro's islands architecture (islands of interactivity in a static page).
 
@@ -306,13 +306,13 @@ composition roots.
 
 | rule | says |
 |---|---|
-| `view-no-container-import` | a view never imports a container |
+| `view-no-container-import` | a view never imports a container, by file or by name through a barrel; type-only imports are fine |
 | `view-no-logic-import` | a view imports no hooks, store, queries or store libraries |
 | `view-no-state`, `view-no-effect`, `view-no-data-hook` | a view is a function of its props |
 | `view-no-inline-handler` (warn) | a view hands no fresh function to a component |
 | `container-no-markup` | a container renders no host elements |
 | `container-no-store-import` | data only through the module hooks |
-| `container-one-view` | one view per container; a layout of several views is a view |
+| `container-one-view` (warn) | typically one view per container; a layout of several views is a view |
 | `store-no-state-replace`, `store-no-object-swap` | small writes keep the islands apart |
 | `module-no-foreign-view` | a module's views are private (shared layer and `<module>/shared/` excepted) |
 | `shared-no-module-import` | the shared layer depends on nothing |
@@ -320,15 +320,11 @@ composition roots.
 Cycles: `import/no-cycle`. Wide and pass-through subscriptions, prop stability, coarse writes against real readers: the
 analyzer, which has the type checker and the whole graph.
 
-### Analyzer and viewer (`twographs`, separate repository)
+### Analyzer and viewer
 
-```
-twographs analyze --project <dir> --entry src/app/page.tsx[,more] --modules src/modules --shared src/components --out graph.json
-```
-
-Views of the graph: `design` (data islands → places → containers), `modules`, `views · import` (the two graphs),
+Not published yet. Views of the graph: `design` (data islands → places → containers), `modules`, `views · import` (the two graphs),
 `state · containers · views` with trace (data flow, re-render wave, element flow), `islands`, `two trees → one`,
-`build the render tree`, `render tree` (static or live through the bippy bridge).
+`build the render tree`, `render tree` (static or live).
 
 ## FAQ
 
@@ -342,15 +338,24 @@ is expensive; the board has eight and each has a one-sentence reason. It pays of
 **Where does UI state go (open panel, hover)?** Hover is CSS. Anything else is state, so a container holds it and the
 view gets a value and a handler. A container for one boolean is the price of views that are pure functions.
 
-**Does every container have its own view?** It renders exactly one view: its own, or a shared one (`Input`, a layout).
+**Does every container have its own view?** It renders only views and containers, typically one view: its own, or a shared one (`Input`, a layout). A loading or empty state next to the main view (`loading ? <Skeleton /> : <Task … />`) is fine; two views laid out side by side are a layout hidden in the container and belong in a view.
 An adapter container that only renders another container is a named exception; prefer passing ids to it.
 
 **When not to split?** When two islands land in the same view (title + selection), or when the view under it is a
 single string. The cost you decide on is `how often × how much re-renders for nothing`.
 
+## Checklist
+
+- [ ] no view imports a container; every container it needs arrives through a `ReactNode` prop
+- [ ] views hold no state and run no effects; the container above owns both
+- [ ] a container renders only views and containers and has no markup of its own
+- [ ] child containers are created by the parent container, never by a view
+- [ ] `memo` sits on every container created by another container, and nowhere else
+- [ ] a Storybook story for any view needs no decorator
+
 ## Glossary
 
-- **container**: data and behaviour, one view, no markup
+- **container**: data and behaviour, only views and containers, no markup
 - **view**: props in, markup out, no state
 - **slot**: a `ReactNode` prop of a view where a container puts content
 - **owner**: the component that created an element (its container); **parent**: where React put it (may be a view)

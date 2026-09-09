@@ -59,13 +59,36 @@ const calleeName = (node) => (node.callee.type === 'Identifier' ? node.callee.na
 // view rules
 // ---------------------------------------------------------------------------------------------------------------------
 
+/** the names a specifier carries: local, imported (import) or exported (re-export) */
+const specifierNames = (s) => [s.local, s.imported, s.exported].filter(Boolean).map((n) => (n.type === 'Identifier' ? n.name : String(n.value)));
+
 const viewNoContainerImport = {
-  meta: { type: 'problem', docs: { description: 'a view never imports a container: it offers a slot (ReactNode prop) and the container fills it' }, schema: [], messages: { found: 'view {{view}} imports container {{target}}. Views never import containers; give the view a ReactNode prop and let a container put {{target}} into it.' } },
+  meta: { type: 'problem', docs: { description: 'a view never imports a container (by file, or by name through a barrel): it offers a slot (ReactNode prop) and the container fills it' }, schema: [], messages: { found: 'view {{view}} imports container {{target}}. Views never import containers; give the view a ReactNode prop and let a container put {{target}} into it.' } },
   create(context) {
-    return forEachImport(context, (node, t, info) => {
-      if (info.kind !== 'view') return;
-      if (t.kind === 'container') context.report({ node: node.source, messageId: 'found', data: { view: path.basename(info.rel), target: t.name } });
-    });
+    const info = fileInfo(context);
+    if (info.kind !== 'view') return {};
+    const view = path.basename(info.rel);
+    // imports, re-exports (`export { X } from`) and `export * from` are all edges of the import graph
+    const check = (node, specifiers) => {
+      if (node.importKind === 'type' || node.exportKind === 'type') return;
+      const values = specifiers.filter((s) => s.importKind !== 'type' && s.exportKind !== 'type');
+      if (specifiers.length && !values.length) return; // every specifier is type-only
+      const rel = resolveImport(node.source.value, info.abs, info.s);
+      if (rel && classify(rel) === 'container') {
+        context.report({ node: node.source, messageId: 'found', data: { view, target: path.posix.basename(rel).replace(/\.[^.]+$/, '') } });
+        return;
+      }
+      // a barrel (`@/modules/user`) is not a container file; the specifier name still says what comes out of it
+      for (const s of values) {
+        const name = specifierNames(s).find((n) => /Container$/.test(n));
+        if (name) context.report({ node: s, messageId: 'found', data: { view, target: name } });
+      }
+    };
+    return {
+      ImportDeclaration(node) { check(node, node.specifiers); },
+      ExportNamedDeclaration(node) { if (node.source) check(node, node.specifiers); },
+      ExportAllDeclaration(node) { check(node, node.exported ? [{ exported: node.exported }] : []); },
+    };
   },
 };
 
@@ -153,7 +176,7 @@ const containerNoStoreImport = {
 };
 
 const containerOneView = {
-  meta: { type: 'problem', docs: { description: 'a container renders exactly one view (its own or a shared one) and puts containers into its slots; several views = layout hidden in the container' }, schema: [], messages: { found: 'container {{container}} imports {{count}} views ({{views}}). A container renders one view and composes containers into its slots; the layout of several views belongs to a view of its own.' } },
+  meta: { type: 'suggestion', docs: { description: 'a container renders only views, typically one, and puts containers into its slots; several views is usually a layout hidden in the container' }, schema: [], messages: { found: 'container {{container}} imports {{count}} views ({{views}}). A container typically renders one view and composes containers into its slots; if this is a layout of several views, it belongs in a view of its own (a loading/empty state next to the main view is fine).' } },
   create(context) {
     const info = fileInfo(context);
     if (info.kind !== 'container') return {};
@@ -197,7 +220,12 @@ const storeNoStateReplace = {
     if (info.kind !== 'store') return {};
     const stack = [];
     const source = context.sourceCode ?? context.getSourceCode();
-    const enter = (node) => stack.push(isReducerFn(node, source) ? 'reducer' : 'other');
+    const enter = (node) => {
+      const reducer = isReducerFn(node, source);
+      stack.push(reducer ? 'reducer' : 'other');
+      // `(state, action) => ({ ...state, filter: action.payload })`: an expression body is a return
+      if (reducer && node.type === 'ArrowFunctionExpression' && node.body.type === 'ObjectExpression') context.report({ node: node.body, messageId: 'found' });
+    };
     const leave = () => stack.pop();
     return {
       ArrowFunctionExpression: enter, 'ArrowFunctionExpression:exit': leave,
@@ -213,7 +241,7 @@ const storeNoStateReplace = {
 };
 
 const storeNoObjectSwap = {
-  meta: { type: 'problem', docs: { description: 'a reducer assigns changed fields, it does not swap a whole object: `t.done = x`, not `byId[id] = { ...t, done: x }`' }, schema: [], messages: { found: 'a whole object is swapped ({{text}}): every field under it changes at once and the islands in the data merge. Assign the fields that changed instead.' } },
+  meta: { type: 'problem', docs: { description: 'a reducer assigns changed fields, it does not swap a whole object: `t.done = x`, not `byId[id] = { ...t, done: x }` or `Object.assign(t, patch)`' }, schema: [], messages: { found: 'a whole object is swapped ({{text}}): every field under it changes at once and the islands in the data merge. Assign the fields that changed instead.', assign: 'Object.assign writes every field of the patch onto {{text}}, changed or not, so the whole object changes at once. Assign the fields that changed instead.' } },
   create(context) {
     const info = fileInfo(context);
     if (info.kind !== 'store') return {};
@@ -237,6 +265,14 @@ const storeNoObjectSwap = {
         const r = node.right;
         const spreads = (r.type === 'ObjectExpression' && r.properties.some((pr) => pr.type === 'SpreadElement')) || (r.type === 'ArrayExpression' && r.elements.some((el) => el && el.type === 'SpreadElement'));
         if (spreads) context.report({ node, messageId: 'found', data: { text: source.getText(node.left) } });
+      },
+      CallExpression(node) {
+        // Object.assign(state.tasks.byId[id], patch)
+        if (!params.size) return;
+        const c = node.callee;
+        if (c.type !== 'MemberExpression' || c.object.type !== 'Identifier' || c.object.name !== 'Object' || c.property.type !== 'Identifier' || c.property.name !== 'assign') return;
+        const target = node.arguments[0];
+        if (target && rootedAtState(target, new Set([...params, ...aliases]))) context.report({ node, messageId: 'assign', data: { text: source.getText(target) } });
       },
     };
   },
@@ -285,11 +321,14 @@ const rules = {
   'shared-no-module-import': sharedNoModuleImport,
 };
 
-const plugin = { meta: { name: 'eslint-plugin-superarchitecture', version: '0.0.1' }, rules, configs: {} };
+const plugin = { meta: { name: 'eslint-plugin-superarchitecture', version: '0.1.0' }, rules, configs: {} };
 
 /** flat config: `import superarchitecture from 'eslint-plugin-superarchitecture'; export default [superarchitecture.configs.recommended]` (add your TS parser) */
 plugin.configs.recommended = {
   name: 'superarchitecture/recommended',
+  files: ['**/*.{ts,tsx,js,jsx}'],
+  // stories and tests are neither views nor containers: they may hold state, mocks and providers
+  ignores: ['**/*.stories.*', '**/*.test.*', '**/*.spec.*', '**/__tests__/**'],
   plugins: { superarchitecture: plugin },
   rules: {
     'superarchitecture/view-no-container-import': 'error',
@@ -300,7 +339,7 @@ plugin.configs.recommended = {
     'superarchitecture/view-no-inline-handler': 'warn',
     'superarchitecture/container-no-markup': 'error',
     'superarchitecture/container-no-store-import': 'error',
-    'superarchitecture/container-one-view': 'error',
+    'superarchitecture/container-one-view': 'warn',
     'superarchitecture/store-no-state-replace': 'error',
     'superarchitecture/store-no-object-swap': 'error',
     'superarchitecture/module-no-foreign-view': 'error',

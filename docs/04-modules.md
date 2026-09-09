@@ -123,7 +123,7 @@ const TaskContainer = ({ id }) => {
 };
 
 // ✅ Good: an id crosses the line, the user module renders its own island
-const TaskContainer = memo(({ id }: { id: TaskId }) => {
+const TaskContainer = memo(function TaskContainer({ id }: { id: TaskId }) {
   const title = useTaskTitle(id);
   const assigneeId = useTaskAssigneeId(id);
   return <Task title={title} assignee={<AvatarContainer userId={assigneeId} />} actions={<TaskActionsContainer taskId={id} />} />;
@@ -149,7 +149,7 @@ Modules form a directed graph over container → container and hooks → hooks e
 module can be understood, tested or removed without the other, and `import/no-cycle` will flag it file by file. The
 analyzer reports it once per pair as `module-cycle`.
 
-The usual cause is a **module that is both a UI kit and a page**. A real case from `akicolors`: the `tokens` module
+The usual cause is a **module that is both a UI kit and a page**. A real case from `akicolors` (a private side project): the `tokens` module
 owned three layout views (`TokenModuleLayout`, `TokensBuilder`, `TokensDocs`) that eight sibling modules (`colors`,
 `gradients`, `shadows`, `borders`, `spacings`, `typography`, `patterns`, `themes`) imported to draw their editors. The
 same `tokens` module also owned `TokensPageContainer`, which composed the containers of those eight modules into the

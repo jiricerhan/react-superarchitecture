@@ -138,7 +138,9 @@ setFilter: (state, action) => { state.filter = action.payload; },
 ```
 
 For fetched data, assign field by field or diff against current state; never `state.tasks.byId = response.byId` over
-entities that containers subscribe to.
+entities that containers subscribe to. The lint catches the syntactic forms only: `store-no-object-swap` reports a
+spread swap and `Object.assign` onto state, `store-no-state-replace` reports a returned or expression-body
+`{ ...state }`. The bulk assignment of a whole map passes the lint; it is a review item.
 
 ### 6. Run the lint until zero
 

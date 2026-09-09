@@ -1,10 +1,10 @@
 import path from 'node:path';
 
 /**
- * Convention-based classification, the same as @superarchitecture/analyze:
+ * Convention-based classification, by file name and location:
  * - *Container.tsx           -> container
  * - use*.ts / hooks.ts       -> hook
- * - *Slice.ts / store.ts     -> store
+ * - *Slice.ts / store.ts / store/hooks.ts (typed base hooks) -> store
  * - utils / consts / types   -> util
  * - *.graphql, queries/      -> query
  * - page.tsx etc. under app  -> page
@@ -17,8 +17,10 @@ export function classify(relFile, opts = {}) {
   const ext = path.posix.extname(posix);
   if (ext === '.graphql' || ext === '.gql' || /\/(queries|fragments)\//.test(posix)) return 'query';
   // app entry points and Next/Vite roots are composition roots, like pages
-  if (/^(main|index|App|_app|root|Root)$/.test(base) && (ext === '.tsx' || ext === '.jsx') && posix.split('/').length <= 2) return 'page';
+  if (/^(main|index|App|_app|root|Root)$/.test(base) && (ext === '.tsx' || ext === '.jsx') && (posix.split('/').length <= 2 || pageDirs.some((d) => posix.startsWith(d + '/')))) return 'page';
   if (/Container$/.test(base)) return 'container';
+  // src/store/hooks.ts holds useAppSelector / useAppDispatch: part of the store, not a module's data API
+  if (/(^|\/)store\/hooks$/.test(posix.replace(/\.[^.]+$/, ''))) return 'store';
   if (/(^|\.)use[A-Z]/.test(base) || base === 'hooks' || /\/hooks\//.test(posix)) return 'hook';
   if (/Slice$/.test(base) || /^store$/i.test(base) || /\/store\//.test(posix)) return 'store';
   if (/^(utils?|consts?|constants|types|helpers?|actionCreators|.*Adapter)$/.test(base) || /\/utils?\//.test(posix)) return 'util';

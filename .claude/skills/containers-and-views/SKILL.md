@@ -2,7 +2,7 @@
 name: containers-and-views
 description: >
   The container / view rule of this architecture: a view never imports a container, containers compose through
-  `ReactNode` slots, views are pure functions of their props, containers hold data and behaviour and render exactly one
+  `ReactNode` slots, views are pure functions of their props, containers hold data and behaviour and render only views and containers, typically one
   view. Use this skill whenever writing or changing a React component in a project that follows react-superarchitecture,
   even when the user does not say "container" or "view": "add a component", "wire data into X", "this view needs the
   store", "add a hook", "fetch in the component", "useSelector in the component", "useState in the component", "split
@@ -15,14 +15,14 @@ description: >
 
 > **A view never imports a container. Containers compose through `ReactNode`.**
 
-The same rule in other words: **do not mix data and views.** Anything that knows about data (a hook, a store, an id, a
+The same rule in other words: **do not mix logic and markup.** Anything that knows about data (a hook, a store, an id, a
 handler with domain logic) lives in a container; anything that knows about pixels (markup, class names, layout) lives in
 a view. The import graph stays flat; React composes the render tree from slots.
 
 ## Definitions
 
 - **View** (`Task.tsx`): props in, markup out. A pure function of its props. Named after what it shows, no `View` suffix.
-- **Container** (`TaskContainer.tsx`): subscriptions, handlers, effects, state. No markup. Renders exactly one view and
+- **Container** (`TaskContainer.tsx`): subscriptions, handlers, effects, state. No markup. Renders only views (typically one) and
   puts child containers into its slots.
 - **Slot**: a `ReactNode` prop of a view where a container puts content.
 - **Island**: a container plus the views it renders up to the next container. Re-renders whole.
@@ -45,7 +45,7 @@ Library components that hold state (a headless Dialog, a Combobox) are views imp
 ## Container rules
 
 - [ ] No host elements, no class names, no style. At most a fragment.
-- [ ] Renders **exactly one view** (its own or a shared one). Several views side by side is a layout hidden in a
+- [ ] Renders **only views and containers**, typically one view (its own or a shared one). Several views side by side is usually a layout hidden in a
       container: move it into a view with slots.
 - [ ] Reads data only through the module's hooks (`useTaskTitle(id)`), never the store, a slice or `useSelector`.
 - [ ] Creates child containers and passes them **ids**, never objects; puts their elements into the view's slots.
@@ -185,7 +185,7 @@ Before finishing, walk the change against the lint rules (`eslint-plugin-superar
 | no view has state, effects or data hooks | `view-no-state`, `view-no-effect`, `view-no-data-hook` |
 | no view hands a fresh function to a component | `view-no-inline-handler` |
 | no container renders host elements | `container-no-markup` |
-| every container renders exactly one view | `container-one-view` |
+| a container renders only views, typically one | `container-one-view` (warn) |
 | no container imports the store, a slice or a store library | `container-no-store-import` |
 | reducers assign fields, never replace objects or state | `store-no-object-swap`, `store-no-state-replace` |
 | no module imports another module's private view | `module-no-foreign-view` |

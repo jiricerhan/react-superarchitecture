@@ -52,7 +52,7 @@ const TaskContainer = ({ id }: { id: string }) => {
 };
 
 // ✅ Right: the container passes a value, the view turns it into a class
-const TaskContainer = memo(({ id }: { id: string }) => {
+const TaskContainer = memo(function TaskContainer({ id }: { id: string }) {
   const title = useTaskTitle(id);
   const selected = useIsTaskSelected(id);
   return <Task title={title} selected={selected} actions={<TaskActionsContainer taskId={id} />} />;

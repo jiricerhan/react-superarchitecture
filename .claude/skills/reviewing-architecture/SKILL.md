@@ -32,7 +32,7 @@ name (a `.tsx` with hooks and markup) is the first finding: it is neither.
 
 **2. Containers.** For every container:
 - no host elements, no `className`, no style; at most a fragment
-- exactly one view rendered; several views = a layout hidden in the container
+- only views and containers rendered, typically one view; several views is usually a layout hidden in the container (a loading/empty state next to the main view is fine)
 - data only through the module's hooks; no `useSelector`, no store, no slice import
 - child containers receive ids, never objects; their elements go into the view's slots
 - `memo` when created by another container, with stable props (ids, `useCallback` handlers); `displayName` set on the inner function
